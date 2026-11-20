@@ -1,0 +1,57 @@
+name: Build iOS IPA
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+env:
+  GODOT_VERSION: "4.3-stable"
+  EXPORT_NAME: "iOS"
+
+jobs:
+  build-ios:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install Godot 4.3 + Export Templates
+        run: |
+          set -e
+          mkdir -p "$HOME/godot"
+          curl -sL -o "$HOME/godot/godot.zip" \
+            "https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_macos.universal.zip"
+          unzip -q "$HOME/godot/godot.zip" -d "$HOME/godot/"
+          chmod +x "$HOME/godot/Godot_v4.3-stable_macos.universal/Godot_macos.universal"
+          echo "$HOME/godot/Godot_v4.3-stable_macos.universal" >> $GITHUB_PATH
+
+          mkdir -p "$HOME/Library/Application Support/Godot/export_templates/4.3.stable"
+          curl -sL -o "$HOME/godot/templates.tpz" \
+            "https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz"
+          unzip -q "$HOME/godot/templates.tpz" -d "$HOME/godot/tmpl"
+          cp -R "$HOME/godot/tmpl/templates/." "$HOME/Library/Application Support/Godot/export_templates/4.3.stable/"
+
+      - name: Verify Godot
+        run: Godot_macos.universal --version
+
+      - name: Import project (generate .godot)
+        run: |
+          Godot_macos.universal --headless --path godot --editor --quit
+
+      - name: Export iOS
+        run: |
+          set -e
+          mkdir -p build
+          Godot_macos.universal --headless --path godot \
+            --export-release "$EXPORT_NAME" "$(pwd)/build/zfyfl.ipa"
+
+      - name: List build output
+        run: ls -lh build/
+
+      - name: Upload IPA artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: zfyfl-ios-ipa
+          path: build/
+          if-no-files-found: warn

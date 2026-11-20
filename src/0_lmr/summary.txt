@@ -1,0 +1,9 @@
+Summary for jars/0_lmr.jar
+Decompiled with CFR 0.152
+
+
+com.cwa.gamelib.c
+----------------------------
+
+q(int )
+  Unable to fully structure code

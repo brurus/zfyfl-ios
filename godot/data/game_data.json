@@ -1,0 +1,58 @@
+{
+  "source": "斩妖伏魔录 / Demon Hunter Legend (2009, China Wireless Arts) - J2ME decompiled",
+  "version": "1.0-port",
+  "weapons": [
+    {"id": 0, "name": "普通轻剑", "tier": 1, "type": "sword",  "atk_base": 10},
+    {"id": 1, "name": "高级长鞭", "tier": 2, "type": "whip",   "atk_base": 25},
+    {"id": 2, "name": "极品轻剑", "tier": 3, "type": "sword",  "atk_base": 45},
+    {"id": 3, "name": "极品重剑", "tier": 3, "type": "greatsword", "atk_base": 60},
+    {"id": 4, "name": "终极轻剑", "tier": 4, "type": "sword",  "atk_base": 80, "recipe": "皇后玫瑰剑"},
+    {"id": 5, "name": "终极重剑", "tier": 4, "type": "greatsword", "atk_base": 100, "recipe": "末日之刃"},
+    {"id": 6, "name": "终极长鞭", "tier": 4, "type": "whip",   "atk_base": 90, "recipe": "贝蒙特圣鞭"},
+    {"id": 7, "name": "终极长枪", "tier": 4, "type": "spear",  "atk_base": 95, "recipe": "泰坦神之矛"},
+    {"id": 8, "name": "花剑轮",   "tier": 3, "type": "magic",  "atk_base": 35}
+  ],
+  "enchantments": [
+    {"id": "atk_low",    "name": "初级攻击", "stat": "attack", "bonus": 0.10, "unlock": "武器升级"},
+    {"id": "atk_high",   "name": "高级攻击", "stat": "attack", "bonus": 0.25, "unlock": "攻击力达到500"},
+    {"id": "atk_ult",    "name": "究级攻击", "stat": "attack", "bonus": 0.50, "unlock": "30秒击杀头目：地狱使者"},
+    {"id": "vamp_low",   "name": "初级吸血", "stat": "lifesteal", "bonus": 0.05, "unlock": "击败头目：守门人"},
+    {"id": "vamp_high",  "name": "高级吸血", "stat": "lifesteal", "bonus": 0.15, "unlock": "杀敌数量达到1000"},
+    {"id": "vamp_ult",   "name": "究级吸血", "stat": "lifesteal", "bonus": 0.30, "unlock": "杀敌数量达到2000"},
+    {"id": "def_low",    "name": "初级防御", "stat": "defense", "bonus": 0.10, "unlock": "武器升级"},
+    {"id": "def_high",   "name": "高级防御", "stat": "defense", "bonus": 0.25, "unlock": "击败头目：魔术师"},
+    {"id": "def_ult",    "name": "究级防御", "stat": "defense", "bonus": 0.50, "unlock": "30秒击杀头目：魔界死神"},
+    {"id": "luck_low",   "name": "初级幸运", "stat": "luck", "bonus": 0.10, "unlock": "击败头目：蛇怪"},
+    {"id": "luck_ult",   "name": "究级幸运", "stat": "luck", "bonus": 0.40, "unlock": "30秒击杀头目：血池蛇怪"},
+    {"id": "exp_low",    "name": "初级经验", "stat": "exp", "bonus": 0.20, "unlock": "武器升级"},
+    {"id": "exp_ult",    "name": "究级经验", "stat": "exp", "bonus": 0.60, "unlock": "游戏时间达到3小时"},
+    {"id": "magic_low",  "name": "初级魔击", "stat": "magic", "bonus": 0.15, "unlock": "魔力值达到300"},
+    {"id": "magic_high", "name": "高级魔击", "stat": "magic", "bonus": 0.30, "unlock": "击败头目：伯爵"},
+    {"id": "magic_ult",  "name": "究级魔击", "stat": "magic", "bonus": 0.60, "unlock": "30秒击杀头目：魔鬼伯爵"}
+  ],
+  "bosses": [
+    {"id": "gatekeeper", "name": "守门人", "hp": 500},
+    {"id": "snake",      "name": "蛇怪",   "hp": 800},
+    {"id": "magician",   "name": "魔术师", "hp": 700},
+    {"id": "count",      "name": "伯爵",   "hp": 1200},
+    {"id": "hellmessenger", "name": "地狱使者", "hp": 2000},
+    {"id": "bloodsnake", "name": "血池蛇怪", "hp": 2500},
+    {"id": "death",      "name": "魔界死神", "hp": 3000},
+    {"id": "devilcount", "name": "魔鬼伯爵", "hp": 4000}
+  ],
+  "levels": [
+    {"id": 0, "name": "第一章：恶魔城入口", "unlock": ""},
+    {"id": 1, "name": "第二章：下水道",     "unlock": ""},
+    {"id": 2, "name": "第三章：地下墓穴",   "unlock": ""},
+    {"id": 3, "name": "第四章：钟楼",       "unlock": ""},
+    {"id": 4, "name": "第五章：礼拜堂",     "unlock": "武器收集度达到80%"},
+    {"id": 5, "name": "第六章：秘密仪式室", "unlock": ""},
+    {"id": 6, "name": "第七章：神秘世界",   "unlock": "武器收集度达到80%"},
+    {"id": 7, "name": "最终章：恶魔城顶",   "unlock": "附魔收集度达到75%"}
+  ],
+  "damage_formula_note": "原版 e.java c(int,int)：case0=3x, case1=x/2, case2~4/6=10x, case5=x, case7=30x, case8=50+20x",
+  "controls": {
+    "move_left": "1/4", "move_right": "3/6", "jump": "2",
+    "attack": "5", "magic": "9", "crouch": "8", "map": "0/7"
+  }
+}

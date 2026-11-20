@@ -1,0 +1,21 @@
+# 工具链（本地构建用，不入库；CI 会重新下载）
+tools/
+*.zip
+
+# Godot 缓存
+godot/.godot/
+godot/.import/
+
+# 构建产物
+build/
+*.ipa
+*.xcarchive
+*.pck
+
+# Python
+__pycache__/
+*.pyc
+
+# 系统
+.DS_Store
+Thumbs.db
