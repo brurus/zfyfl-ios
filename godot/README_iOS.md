@@ -29,8 +29,21 @@ zfyfl/
 | `e.java c(int,int)` 伤害公式 | Player.gd `original_damage_formula()` | 完整还原 |
 | 附魔/武器/关卡数据 | data/game_data.json | 数据提取完成 |
 | keyPressed (1/3/4/6/2/5/9) | Godot Input + 触屏 | 完成 |
-| `.mid` 精灵/场景资源 | 待转换（PNG 序列） | 未做 |
+| `.mid` 精灵/场景资源 | 解包为 PNG，接入 Sprite2D/TextureRect | 已接入（见下） |
+| 中文字体 | assets/fonts/simhei.ttf | 已接入，修复方块字 |
 | 剧情文本 a/*.java | data/*_text.json | 已导出，未接入 |
+
+## 美术资源接入（2026-11-20）
+
+JAR 内的精灵/场景图伪装成 `.mid`（实为自定义封装），解码格式：
+`skip(4) → key=readInt() → 循环 { len=readInt(); 数据逐字节 XOR key }`，解出即 PNG。
+
+- `extract_sprites.py` 批量解包，导出 89 张原版 PNG（角色/场景）。
+- 选定资源已复制到 `godot/assets/sprites/`：
+  - `player.png`（主角图集 role_0）、`enemy.png`（role_1）、`boss.png`（role_20）
+  - `background.png` / `bg_detail.png`（原版场景）
+- `project.godot` 设 `theme/custom_font=simhei.ttf` 修复 HUD 中文方块字。
+- `Main.tscn` 的角色由 ColorRect 换成 Sprite2D，背景换 TextureRect；血条改红色样式。
 
 ## 本地运行
 
@@ -78,10 +91,10 @@ cd E:/WorkBuddy/2026-11-20-13-46-33/zfyfl/godot
 
 ## 待办（按优先级）
 
-1. **美术资源**：把 jar 里的 `.mid`（实为自定义精灵格式）转换为 PNG，接入 AnimatedSprite2D。当前用色块占位。
+1. **逐帧动画**：当前精灵是整张图集缩放显示，需按 module/frame 数据切帧接入 AnimatedSprite2D。
 2. **剧情接入**：把 data/*_text.json 的对话接进 UI 系统。
 3. **关卡数据**：jar 内 `data/scene/scene_*.mid` 是地图块数据，需写解析器生成 TileMap。
-4. **音频**：原版音效在 jar 内，提取后接入 AudioStreamPlayer。
+4. **音频**：原版音效在 jar 内（伪装 .mid 的自定义格式），提取后接入 AudioStreamPlayer。
 5. **存档**：用 Godot `FileAccess` 替代 J2ME `RecordStore`。
 
 ## 说明
