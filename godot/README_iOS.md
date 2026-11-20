@@ -45,25 +45,29 @@ cd E:/WorkBuddy/2026-11-20-13-46-33/zfyfl/godot
 
 仓库：`https://github.com/brurus/zfyfl-ios`
 
-### 方案 A：Codemagic（免费 macOS 分钟，实测可用）
+### 方案 A：GitHub Actions（已配好，推荐）
 
-1. 用 GitHub 账号登录 [codemagic.io](https://codemagic.io)，Add application → 选 `brurus/zfyfl-ios`。
-2. 构建配置选仓库根目录的 `codemagic.yaml`（已配好 Godot 4.3 + 模板 + 导出 IPA）。
-3. 在 Codemagic 项目环境变量里加 `EMAIL`（收构建通知）。
-4. 点 Start new build，选 `ios-godot-build` workflow，等 macOS runner 出 IPA。
-5. 构建产物在 Artifacts 里下载 `build/zfyfl.ipa`。
+`.github/workflows/ios-build.yml`，runner 用 `macos-15`（macos-14 镜像已下线会被取消）。
+流程分两步（对齐 Cloudn 仓库已验证方案）：
+1. Godot 4.3 headless 导出 Xcode 项目（导出模板自动下载安装）。
+2. `xcodebuild CODE_SIGNING_ALLOWED=NO` 构建未签名 `.app`，再 zip 成 `zfyfl.ipa`，附 SHA256。
 
-### 方案 B：GitHub Actions（需账号有 macOS runner 权限）
+触发方式：推送到 main/master 自动跑，或 Actions 页面手动 `Run workflow`。
+产物在 workflow 运行的 Artifacts 里下载 `zfyfl-ios-ipa`。
 
-`.github/workflows/ios-build.yml` 已配好 `macos-14` runner。
-当前 brurus 账号免费额度下 macOS job 会被立即取消（实测 ubuntu runner 正常、macOS 被 cancel），
-需升级 GitHub 账号或改用方案 A。
+### 方案 B：Codemagic（备用，免费 macOS 分钟）
+
+1. 登录 [codemagic.io](https://codemagic.io)，Add application → 选 `brurus/zfyfl-ios`。
+2. 构建配置选仓库根目录 `codemagic.yaml`。
+3. 加环境变量 `EMAIL`，Start build → 下载 `build/zfyfl.ipa`。
 
 ### 签名说明
 
-Godot iOS 导出默认 `export_method=app-store` 且签名身份留空，产出的是**未签名 IPA**（可安装到越狱机或用于验证导出流程）。
-要上 TestFlight/App Store 需补：Apple Developer 账号 + 证书 + 描述文件，填入 `export_presets.cfg` 的
-`code_signing_identity` / `provisioning_profile_uuid` / `team_id` 三个字段，或在 Codemagic 里配置证书自动签名。
+产出的是**未签名 IPA**（`CODE_SIGNING_ALLOWED=NO`，可装越狱机/验证打包流程，用于 TestFlight 需签名）。
+要上 TestFlight/App Store 需补 Apple Developer 账号 + 证书 + 描述文件：
+- `export_presets.cfg` 里 `team_id` 填真实 10 位 Team ID（当前是占位 `ABCDE12XYZ`），
+  `code_signing_identity` / `provisioning_profile_uuid_*` 填证书信息；
+- 或去掉 workflow 里的 `CODE_SIGNING_ALLOWED=NO`，在 xcodebuild 里配签名。
 
 ## 本地手动导出（需 Mac）
 
