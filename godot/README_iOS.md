@@ -41,13 +41,36 @@ cd E:/WorkBuddy/2026-11-20-13-46-33/zfyfl/godot
 
 操作：方向键移动 / 空格跳 / J 攻击 / K 魔法。
 
-## iOS 导出（需 macOS + Xcode）
+## 云端构建（推荐）
 
-1. 在 Mac 上安装 Godot 4.3 + Xcode。
+仓库：`https://github.com/brurus/zfyfl-ios`
+
+### 方案 A：Codemagic（免费 macOS 分钟，实测可用）
+
+1. 用 GitHub 账号登录 [codemagic.io](https://codemagic.io)，Add application → 选 `brurus/zfyfl-ios`。
+2. 构建配置选仓库根目录的 `codemagic.yaml`（已配好 Godot 4.3 + 模板 + 导出 IPA）。
+3. 在 Codemagic 项目环境变量里加 `EMAIL`（收构建通知）。
+4. 点 Start new build，选 `ios-godot-build` workflow，等 macOS runner 出 IPA。
+5. 构建产物在 Artifacts 里下载 `build/zfyfl.ipa`。
+
+### 方案 B：GitHub Actions（需账号有 macOS runner 权限）
+
+`.github/workflows/ios-build.yml` 已配好 `macos-14` runner。
+当前 brurus 账号免费额度下 macOS job 会被立即取消（实测 ubuntu runner 正常、macOS 被 cancel），
+需升级 GitHub 账号或改用方案 A。
+
+### 签名说明
+
+Godot iOS 导出默认 `export_method=app-store` 且签名身份留空，产出的是**未签名 IPA**（可安装到越狱机或用于验证导出流程）。
+要上 TestFlight/App Store 需补：Apple Developer 账号 + 证书 + 描述文件，填入 `export_presets.cfg` 的
+`code_signing_identity` / `provisioning_profile_uuid` / `team_id` 三个字段，或在 Codemagic 里配置证书自动签名。
+
+## 本地手动导出（需 Mac）
+
+1. Mac 安装 Godot 4.3 + Xcode。
 2. 打开工程 → Project → Export → Add → iOS。
-3. 填写 Bundle ID（如 `com.yourname.zfyfl`）和签名团队。
-4. 导出 `.xcodeproj`，用 Xcode 签名后 Archive → 真机运行或 TestFlight。
-5. 无 Mac 时用云构建（如 iOSForge / MacinCloud / GitHub Actions macOS runner）跑同一导出流程。
+3. 填 Bundle ID 与签名团队。
+4. 导出 `.xcodeproj`，Xcode 签名后 Archive → 真机/TestFlight。
 
 ## 待办（按优先级）
 

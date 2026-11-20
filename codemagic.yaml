@@ -1,0 +1,47 @@
+# Codemagic CI - 斩妖伏魔录 iOS 云构建
+# 用法：把本仓库连到 Codemagic (codemagic.io)，选择此配置文件即可
+# 免费账号每月含 macOS 构建分钟
+
+workflows:
+  ios-godot-build:
+    name: ZFYFL iOS (Godot 4.3)
+    instance_type: mac_mini_m2
+    max_build_duration: 60
+    environment:
+      vars:
+        GODOT_VERSION: "4.3-stable"
+        BUNDLE_ID: "com.brurus.zfyfl"
+      xcode: latest
+    scripts:
+      - name: Install Godot 4.3 + Export Templates
+        script: |
+          set -e
+          mkdir -p "$HOME/godot"
+          curl -sL -o "$HOME/godot/godot.zip" \
+            "https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_macos.universal.zip"
+          unzip -q "$HOME/godot/godot.zip" -d "$HOME/godot/"
+          chmod +x "$HOME/godot/Godot_v4.3-stable_macos.universal/Godot_macos.universal"
+
+          mkdir -p "$HOME/Library/Application Support/Godot/export_templates/4.3.stable"
+          curl -sL -o "$HOME/godot/templates.tpz" \
+            "https://github.com/godotengine/godot/releases/download/4.3-stable/Godot_v4.3-stable_export_templates.tpz"
+          unzip -q "$HOME/godot/templates.tpz" -d "$HOME/godot/tmpl"
+          cp -R "$HOME/godot/tmpl/templates/." "$HOME/Library/Application Support/Godot/export_templates/4.3.stable/"
+
+      - name: Import + Export iOS
+        script: |
+          set -e
+          GODOT="$HOME/godot/Godot_v4.3-stable_macos.universal/Godot_macos.universal"
+          "$GODOT" --headless --path godot --editor --quit
+          mkdir -p build
+          "$GODOT" --headless --path godot --export-release "iOS" "$(pwd)/build/zfyfl.ipa"
+
+      - name: Verify output
+        script: ls -lh build/
+
+    artifacts:
+      - build/**/*
+    publishing:
+      email:
+        recipients:
+          - ${EMAIL}
