@@ -26,7 +26,7 @@ var enchant_bonuses: Dictionary = {
 	"magic": 0.0, "luck": 0.0, "exp": 0.0
 }
 
-@onready var sprite: ColorRect = $Sprite
+@onready var sprite: Sprite2D = $Sprite
 @onready var attack_timer: Timer = $AttackTimer
 
 func _ready() -> void:

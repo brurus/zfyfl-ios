@@ -16,6 +16,9 @@ build/
 __pycache__/
 *.pyc
 
+# 解包中间产物（选定精灵已复制到 godot/assets/sprites）
+assets_extracted/
+
 # 系统
 .DS_Store
 Thumbs.db

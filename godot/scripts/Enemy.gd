@@ -31,12 +31,12 @@ func take_damage(amount: int) -> void:
 		die()
 
 func flash() -> void:
-	var c := get_node_or_null("Sprite") as ColorRect
-	if c:
-		c.color = Color.WHITE
+	var s := get_node_or_null("Sprite") as Sprite2D
+	if s:
+		s.modulate = Color.WHITE
 		await get_tree().create_timer(0.08).timeout
-		if is_instance_valid(c):
-			c.color = Color(0.8, 0.2, 0.2)
+		if is_instance_valid(s):
+			s.modulate = Color(1, 1, 1)
 
 func die() -> void:
 	if is_boss:
