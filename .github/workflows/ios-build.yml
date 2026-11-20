@@ -5,9 +5,6 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
-env:
-  EXPORT_NAME: "iOS"
-
 jobs:
   build-ios:
     runs-on: macos-15
@@ -16,58 +13,76 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Xcode
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+
       - name: Install Godot 4.3 + Export Templates
         run: |
           set -euo pipefail
           mkdir -p "$HOME/godot"
           GH="https://github.com/godotengine/godot/releases/download/4.3-stable"
 
-          echo "Downloading Godot macOS..."
           curl -fL --retry 5 --retry-all-errors --connect-timeout 30 \
             -o "$HOME/godot/godot.zip" "$GH/Godot_v4.3-stable_macos.universal.zip"
-          ls -lh "$HOME/godot/godot.zip"
-
-          echo "Downloading export templates..."
           curl -fL --retry 5 --retry-all-errors --connect-timeout 30 \
             -o "$HOME/godot/templates.tpz" "$GH/Godot_v4.3-stable_export_templates.tpz"
-          ls -lh "$HOME/godot/templates.tpz"
 
           unzip -q -o "$HOME/godot/godot.zip" -d "$HOME/godot/"
-          echo "--- unzip result ---"
-          find "$HOME/godot" -maxdepth 2 -type f -perm +111
-
           GODOT_BIN=$(find "$HOME/godot" -type f -name "Godot*" -perm +111 | head -1)
-          echo "GODOT_BIN=$GODOT_BIN"
-          test -n "$GODOT_BIN" && chmod +x "$GODOT_BIN"
+          chmod +x "$GODOT_BIN"
           echo "$GODOT_BIN" > "$HOME/godot/godot_bin.path"
+          echo "Godot: $GODOT_BIN"
 
           mkdir -p "$HOME/Library/Application Support/Godot/export_templates/4.3.stable"
           unzip -q -o "$HOME/godot/templates.tpz" -d "$HOME/godot/tmpl"
           cp -R "$HOME/godot/tmpl/templates/." "$HOME/Library/Application Support/Godot/export_templates/4.3.stable/"
           echo "Templates installed."
 
-      - name: Verify Godot
-        run: |
-          GODOT_BIN=$(cat "$HOME/godot/godot_bin.path")
-          "$GODOT_BIN" --version
-
       - name: Import project
         run: |
           GODOT_BIN=$(cat "$HOME/godot/godot_bin.path")
           "$GODOT_BIN" --headless --path godot --editor --quit
 
-      - name: Export iOS IPA
+      - name: Export Xcode project from Godot
         run: |
           set -euo pipefail
           GODOT_BIN=$(cat "$HOME/godot/godot_bin.path")
           mkdir -p build
           "$GODOT_BIN" --headless --path godot \
-            --export-release "$EXPORT_NAME" "$(pwd)/build/zfyfl.ipa"
-          ls -lh build/
+            --export-release "iOS" "$(pwd)/build/zfyfl"
+          echo "--- exported files ---"
+          find build -maxdepth 2 -type f -o -type d | head -30
+
+      - name: Build unsigned IPA with xcodebuild
+        run: |
+          set -euo pipefail
+          XCODEPROJ=$(find build -name "*.xcodeproj" -maxdepth 2 | head -1)
+          SCHEME=$(basename "$XCODEPROJ" .xcodeproj)
+          echo "Xcode project: $XCODEPROJ | scheme: $SCHEME"
+
+          xcodebuild -project "$XCODEPROJ" -scheme "$SCHEME" \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" build
+
+          APP=$(find build/DerivedData -name "*.app" -type d | head -1)
+          echo "Built app: $APP"
+          mkdir -p build/Payload
+          cp -R "$APP" build/Payload/
+          cd build
+          zip -qry zfyfl.ipa Payload
+          shasum -a 256 zfyfl.ipa | tee SHA256SUMS.txt
+          ls -lh zfyfl.ipa
 
       - name: Upload IPA artifact
         uses: actions/upload-artifact@v4
         with:
           name: zfyfl-ios-ipa
-          path: build/
+          path: |
+            build/zfyfl.ipa
+            build/SHA256SUMS.txt
           if-no-files-found: error
